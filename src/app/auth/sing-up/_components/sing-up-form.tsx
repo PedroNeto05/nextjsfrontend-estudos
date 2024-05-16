@@ -1,5 +1,4 @@
 'use client'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -8,28 +7,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { LoaderCircle, CircleCheck, CircleX } from 'lucide-react'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import axios, { HttpStatusCode } from 'axios'
+import { z } from 'zod'
+import { config } from '@/app/config'
+import { capitalizeFirstLetter } from '@/app/utils'
 
 const singUpFormSchema = z
   .object({
-    firstName: z
-      .string()
-      .trim()
-      .min(4, 'First Name must be at least 4 characters.'),
-    lastName: z
-      .string()
-      .trim()
-      .min(4, 'Last Name must be at least 4 characters.'),
+    firstName: z.string().trim().min(4, 'Minimum 4 characters.'),
+    lastName: z.string().trim().min(4, 'Minimum 4 characters.'),
     email: z.string().trim().email(),
     confirmEmail: z.string().trim(),
     password: z
@@ -54,8 +54,34 @@ export function SingUpForm() {
     resolver: zodResolver(singUpFormSchema),
   })
 
-  function handleSingUp(data: SingUpFormSchema) {
-    console.log(data)
+  const { toast } = useToast()
+
+  async function handleSingUp(data: SingUpFormSchema) {
+    try {
+      const handleSingUpRequest = await axios.post(
+        config.apiUrl + '/user',
+        data,
+      )
+
+      if (handleSingUpRequest.status === HttpStatusCode.Ok) {
+        toast({
+          title: 'Sing Up Success ',
+          className: 'bg-green-600 text-white',
+          action: <CircleCheck />,
+        })
+      }
+    } catch (e) {
+      console.log(e)
+
+      if (axios.isAxiosError(e) && e.response) {
+        toast({
+          variant: 'destructive',
+          description: capitalizeFirstLetter(e.response.data.error),
+          title: 'Sing Up Error',
+          action: <CircleX />,
+        })
+      }
+    }
   }
 
   return (
@@ -82,6 +108,7 @@ export function SingUpForm() {
                     <FormControl>
                       <Input placeholder='Pedro' {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -96,6 +123,7 @@ export function SingUpForm() {
                         <Input placeholder='Neto' {...field} />
                       </div>
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -114,6 +142,7 @@ export function SingUpForm() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -132,6 +161,7 @@ export function SingUpForm() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -146,6 +176,7 @@ export function SingUpForm() {
                     <FormControl>
                       <Input type='password' {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -160,18 +191,28 @@ export function SingUpForm() {
                     <FormControl>
                       <Input type='password' {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <Button type='submit' className='w-full'>
-              Create an account
+            <Button
+              type='submit'
+              className='w-full'
+              disabled={form.formState.isSubmitting}
+            >
+              {!form.formState.isSubmitting && 'Create an account'}
+              {form.formState.isSubmitting && (
+                <span className='flex items-center gap-4'>
+                  Sending <LoaderCircle className='animate-spin' />{' '}
+                </span>
+              )}
             </Button>
           </form>
         </Form>
         <div className='mt-4 text-center text-sm'>
           Already have an account?{' '}
-          <Link href='#' className='underline'>
+          <Link href='/auth/sing-in' className='underline'>
             Sign in
           </Link>
         </div>
