@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-export function LoginForm() {
+export function SingUpForm() {
   return (
     <Card className='mx-auto max-w-sm'>
       <CardHeader>
@@ -21,7 +21,7 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='grid gap-4'>
+        <form className='grid gap-4'>
           <div className='grid grid-cols-2 gap-4'>
             <div className='grid gap-2'>
               <Label htmlFor='first-name'>First name</Label>
@@ -61,7 +61,7 @@ export function LoginForm() {
           <Button type='submit' className='w-full'>
             Create an account
           </Button>
-        </div>
+        </form>
         <div className='mt-4 text-center text-sm'>
           Already have an account?{' '}
           <Link href='#' className='underline'>
