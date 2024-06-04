@@ -27,6 +27,7 @@ import axios, { HttpStatusCode } from 'axios'
 import { config } from '@/app/config'
 import { toast } from '@/components/ui/use-toast'
 import { capitalizeFirstLetter } from '@/app/utils'
+import { useRouter } from 'next/navigation'
 
 const singInFormSchema = z.object({
   email: z.string().trim().email(),
@@ -36,19 +37,21 @@ const singInFormSchema = z.object({
 type SingInFormSchema = z.infer<typeof singInFormSchema>
 
 export function SingInForm() {
+  const { refresh } = useRouter()
   const form = useForm<SingInFormSchema>({
     resolver: zodResolver(singInFormSchema),
   })
 
   async function handleSingIn(data: SingInFormSchema) {
     try {
-      const handleSingUpRequest = await axios.post(
+      const handleSingInRequest = await axios.post(
         config.apiUrl + '/user/login',
         data,
+        { withCredentials: true },
       )
 
-      if (handleSingUpRequest.status === HttpStatusCode.Ok) {
-        console.log('deu bom', data)
+      if (handleSingInRequest.status === HttpStatusCode.Ok) {
+        refresh()
       }
     } catch (e) {
       if (axios.isAxiosError(e) && e.response) {
