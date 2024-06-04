@@ -4,7 +4,7 @@ export function middleware(req: NextRequest) {
   const singInPath = '/auth/sing-in'
   const singUpPath = '/auth/sing-up'
   const homePath = '/home'
-  const token = req.cookies.get('yourCookieName')
+  const token = req.cookies.get('token.connect')
 
   console.log(req.url)
 
